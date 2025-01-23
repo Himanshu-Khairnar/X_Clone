@@ -1,0 +1,17 @@
+{
+  "name": "x_backend",
+  "version": "1.0.0",
+  "description": "X(twitter) Clone backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "X",
+    "Twitter",
+    "express",
+    "nodeJs"
+  ],
+  "author": "Himanshu-Khairnar",
+  "license": "ISC"
+}
