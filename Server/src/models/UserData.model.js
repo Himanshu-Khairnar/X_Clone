@@ -1,4 +1,4 @@
-import mongoose, { Schema ,Models} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const userDataSchema = new Schema({
     userId: {
@@ -24,4 +24,4 @@ const userDataSchema = new Schema({
 
 })
 
-export default  UserData = Models.UserData || mongoose.model("UserData", userDataSchema)
+export default UserData = mongoose.models.UserData || mongoose.model("UserData", userDataSchema)
