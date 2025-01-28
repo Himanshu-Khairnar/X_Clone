@@ -168,3 +168,24 @@ export const getaccesstoken = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Something went wrong while generating refresh token");
   }
 });
+
+export const getUserProfile = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(400, "User not found");
+    }
+    return res
+      .status(200)
+      .json(
+        new ApiResponse({
+          statusCode: 200,
+          data: { user },
+          message: "User profile fetched successfully",
+        })
+      );
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(400, "Something went wrong while fetching user profile");  
+  }
+});
