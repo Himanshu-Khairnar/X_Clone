@@ -67,19 +67,35 @@ export const login = asyncHandler(async (req, res) => {
 export const register = asyncHandler(async (req, res) => {
   try {
     const { fullname, username, email, password } = req.body;
+
     if (!fullname && !username && !email && !password) {
       throw new ApiError(400, "All fields are required");
     }
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ $or: [{ email }, { username }] });
     if (user) {
       throw new ApiError(400, "User already exists");
     }
+
+    const avatar = req.files.avatar[0]?.path;
+    var coverImage ;
+    if(req.files.coverImage.length > 0) 
+    coverImage= req.files.coverImage[0]?.path;
+
+    if(!avatar ) 
+      throw new ApiError(400, "Avatar is required");
+
+    const avatarImage = await uploadImage(avatar);
+    const coverImageImage = await uploadImage(coverImage);
+
+
     const hashedPassword = await bcryptjs.hash(password, 10);
     const newUser = await User.create({
       fullname,
       username,
       email,
       password: hashedPassword,
+      avatar: avatarImage.url , 
+      coverImage:coverImageImage.url || "",
     });
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser._id);
@@ -118,8 +134,8 @@ export const logout = asyncHandler(async (req, res) => {
     const user = await User.findOne({ refreshToken });
     if (!user) {
       throw new ApiError(400, "User not found");
-    }   
-    user.refreshToken = "";      
+    }
+    user.refreshToken = "";
     await user.save();
     return res
       .status(200)
@@ -147,7 +163,7 @@ export const getaccesstoken = asyncHandler(async (req, res) => {
     const user = await User.findOne({ refreshToken });
     if (!user) {
       throw new ApiError(400, "User not found");
-    }   
+    }
     const accessToken = generateAccessToken(user);
     return res
       .status(200)
@@ -165,7 +181,10 @@ export const getaccesstoken = asyncHandler(async (req, res) => {
       );
   } catch (error) {
     console.log(error);
-    throw new ApiError(400, "Something went wrong while generating refresh token");
+    throw new ApiError(
+      400,
+      "Something went wrong while generating refresh token"
+    );
   }
 });
 
@@ -175,17 +194,15 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     if (!user) {
       throw new ApiError(400, "User not found");
     }
-    return res
-      .status(200)
-      .json(
-        new ApiResponse({
-          statusCode: 200,
-          data: { user },
-          message: "User profile fetched successfully",
-        })
-      );
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: { user },
+        message: "User profile fetched successfully",
+      })
+    );
   } catch (error) {
     console.log(error);
-    throw new ApiError(400, "Something went wrong while fetching user profile");  
+    throw new ApiError(400, "Something went wrong while fetching user profile");
   }
 });
