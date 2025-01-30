@@ -1,7 +1,7 @@
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../utils/asyncHandler";
 
-const verifyJWT = asyncHandler(async (req, res, next) => {
+export  const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const authHeader =
       req.cookies?.accessToken ||

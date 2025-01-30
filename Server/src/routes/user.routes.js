@@ -5,7 +5,13 @@ import {
   logout,
   getaccesstoken,
   getUserProfile,
+  updateUserProfile,
+  deleteUserProfile,
+  updateAvatar,
+  updateCoverImage,
+  changePassword,
 } from "../controllers/user.controller.js";
+import { verifyJWT } from "../middlewares/VerifyJWT.middleware.js";
 
 const router = Router();
 
@@ -18,7 +24,19 @@ router.route("/register").post(
   register
 );
 router.route("/logout").post(logout);
-router.route("/get-refresh-token").post(getaccesstoken);
-router.route("/profile").get(getUserProfile);
+
+//authorized routes
+router.route("/get-refresh-token").post(verifyJWT, getaccesstoken);
+router.route("/profile").get(verifyJWT, getUserProfile);
+router.route("/profile/:id").get(verifyJWT, getUserProfile);
+router.route("/profile/:id").put(verifyJWT, updateUserProfile);
+router.route("/profile/:id").delete(verifyJWT, deleteUserProfile);
+router
+  .route("/avatar/:id")
+  .put(verifyJWT, upload.single("avatar"), updateAvatar);
+router
+  .route("/cover-image/:id")
+  .put(verifyJWT, upload.single("coverImage"), updateCoverImage);
+router.route("changePassword").put(verifyJWT, changePassword);
 
 export default router;

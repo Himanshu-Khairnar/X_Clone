@@ -77,16 +77,14 @@ export const register = asyncHandler(async (req, res) => {
     }
 
     const avatar = req.files.avatar[0]?.path;
-    var coverImage ;
-    if(req.files.coverImage.length > 0) 
-    coverImage= req.files.coverImage[0]?.path;
+    var coverImage;
+    if (req.files.coverImage.length > 0)
+      coverImage = req.files.coverImage[0]?.path;
 
-    if(!avatar ) 
-      throw new ApiError(400, "Avatar is required");
+    if (!avatar) throw new ApiError(400, "Avatar is required");
 
     const avatarImage = await uploadImage(avatar);
     const coverImageImage = await uploadImage(coverImage);
-
 
     const hashedPassword = await bcryptjs.hash(password, 10);
     const newUser = await User.create({
@@ -94,8 +92,8 @@ export const register = asyncHandler(async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      avatar: avatarImage.url , 
-      coverImage:coverImageImage.url || "",
+      avatar: avatarImage.url,
+      coverImage: coverImageImage.url || "",
     });
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser._id);
@@ -204,5 +202,135 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error);
     throw new ApiError(400, "Something went wrong while fetching user profile");
+  }
+});
+
+export const updateUserProfile = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(400, "User not found");
+    }
+    const { fullname, username, email, password } = req.body;
+    if (!fullname || !username || !email) {
+      throw new ApiError(400, "All fields are required");
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { fullname, username, email },
+      { new: true }
+    );
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: { user: updatedUser },
+        message: "User profile updated successfully",
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(400, "Something went wrong while updating user profile");
+  }
+});
+
+export const deleteUserProfile = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) throw new ApiError(400, "User not found");
+
+    await User.findByIdAndDelete(req.user.id);
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: {},
+        message: "User profile deleted successfully",
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(400, "Something went wrong while deleting user profile");
+  }
+});
+
+export const updateAvatar = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(400, "User not found");
+    }
+    const avatar = req.files.avatar[0]?.path;
+    if (!avatar) {
+      throw new ApiError(400, "Avatar is required");
+    }
+    const avatarUrl = await uploadFile(avatar);
+    user.avatar = avatarUrl;
+    await user.save();
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: { user },
+        message: "Avatar updated successfully",
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(400, "Something went wrong while updating avatar");
+  }
+});
+
+export const updateCoverImage = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(400, "User not found");
+    }
+    const coverImage = req.files.coverImage[0]?.path;
+    if (!coverImage) {
+      throw new ApiError(400, "Cover image is required");
+    }
+    const coverImageUrl = await uploadFile(coverImage);
+    user.coverImage = coverImageUrl;
+    await user.save();
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: { user },
+        message: "Cover image updated successfully",
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(400, "Something went wrong while updating cover image");
+  }
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id  );
+    if (!user) {
+      throw new ApiError(400, "User not found");
+    }
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      throw new ApiError(400, "All fields are required");
+    }
+    const isMatch = await bcryptjs.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw new ApiError(400, "Invalid credentials");
+    }
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: { user },
+        message: "Password updated successfully",
+      })
+    );
+  }
+  catch (error) {
+    console.log(error);
+    throw new ApiError(400, "Something went wrong while updating password");
   }
 });
