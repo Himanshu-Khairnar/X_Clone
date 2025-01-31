@@ -50,4 +50,5 @@ const tweetSchema = new Schema(
     }
 );
 
+
 export default mongoose.models.Tweet || mongoose.model("Tweet", tweetSchema);

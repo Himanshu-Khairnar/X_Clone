@@ -38,5 +38,4 @@ router
   .route("/cover-image/:id")
   .put(verifyJWT, upload.single("coverImage"), updateCoverImage);
 router.route("changePassword").put(verifyJWT, changePassword);
-
 export default router;
