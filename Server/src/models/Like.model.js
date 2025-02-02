@@ -22,13 +22,14 @@ const likeSchema = new Schema(
       ref: "Comment",
       required: false,
     },
-    like:{
-        type:Boolean,
-        required:true,
-        default:false
-    }
+    like: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true }
-);    
+);
 
-export default Like = mongoose.models.Like || mongoose.model("Like", likeSchema)
+export default Like =
+  mongoose.models.Like || mongoose.model("Like", likeSchema);

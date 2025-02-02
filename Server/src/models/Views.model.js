@@ -1,22 +1,25 @@
 import mongoose, { Schema } from "mongoose";
 
-const viewsSchema = new Schema({
+const viewsSchema = new Schema(
+  {
     authorId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     viewerId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     postId: {
-        type: Schema.Types.ObjectId,
-        ref: "Post",
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      required: true,
     },
-   
-})
+  },
+  { timestamps: true }
+);
 
-export default  Views = mongoose.models.Views || mongoose.model("Views", viewsSchema)
+export default Views =
+  mongoose.models.Views || mongoose.model("Views", viewsSchema);
