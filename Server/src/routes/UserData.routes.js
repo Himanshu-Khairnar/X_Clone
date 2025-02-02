@@ -1,8 +1,8 @@
 import { Router } from "express";
 import {GetUserData} from '../controllers/UserData.controller.js'
-import { verify } from "jsonwebtoken";
+import { verifyJWT} from "../middlewares/VerifyJWT.middleware.js";
 const router  = Router();
-router.use()
+router.use(verifyJWT);
 router.route("/").get(GetUserData).post(AddUserData).put(updateuserData);
 router.route("/:userdataID").get(getAnotherUserData);
 export default router;
