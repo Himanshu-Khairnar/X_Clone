@@ -14,6 +14,7 @@ export const getTweets = asyncHandler(async (res, req) => {
 
 export const postTweet = asyncHandler(async (res, req) => {
   try {
+    
   } catch (error) {
     console.log(error);
     throw ApiError(500, "Error in posting tweets");

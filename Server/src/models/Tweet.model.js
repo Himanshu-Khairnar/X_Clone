@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const tweetSchema = new Schema(
   {
     author: {
@@ -49,5 +49,7 @@ const tweetSchema = new Schema(
     timestamps: true,
   }
 );
+
+Tweet.plugin(mongooseAggregatePaginate);
 
 export default mongoose.models.Tweet || mongoose.model("Tweet", tweetSchema);

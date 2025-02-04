@@ -5,7 +5,6 @@ import { Comment } from "../models/Comment.model";
 import { Tweet } from "../models/Tweet.model";
 import { User } from "../models/User.model";
 
-
 export const createComment = asyncHandler(async (req, res) => {
   try {
     const { tweetId } = req.params;
@@ -35,11 +34,50 @@ export const createComment = asyncHandler(async (req, res) => {
 export const getComments = asyncHandler(async (req, res) => {
   try {
     const { tweetId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    if (!isValidObjectId(videoId)) throw new ApiError(400, "Invalid videoId");
+
     const tweet = await Tweet.findById(tweetId);
     if (!tweet) {
       throw new ApiError(404, "Tweet not found");
     }
-    const comments = await Comment.find({ postId: tweetId });
+    const skip = (page - 1) * limit;
+    const pipeline = [
+      {
+        $match: {
+          tweetId: new mongoose.Types.ObjectId(tweetId), // Ensure videoId is an ObjectId
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: parseInt(limit),
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          createdAt: 1,
+          userDetails: { $arrayElemAt: ["$userDetails", 0] },
+        },
+      },
+    ];
+
+    const comments = await Comment.aggregate(pipeline);
+
     if (!comments) {
       throw new ApiError(500, "Error in getting comments");
     }
