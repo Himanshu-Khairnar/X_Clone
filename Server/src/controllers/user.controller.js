@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import {uploadFile} from "../utils/Cloudinary.js"
 const generateAccessToken = (user) => {
   return jwt.sign(
     {
@@ -263,7 +263,7 @@ export const updateAvatar = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Avatar is required");
     }
     const avatarUrl = await uploadFile(avatar);
-    user.avatar = avatarUrl;
+    user.avatar = avatarUrl.url;
     await user.save();
     return res.status(200).json(
       new ApiResponse({
@@ -289,7 +289,7 @@ export const updateCoverImage = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Cover image is required");
     }
     const coverImageUrl = await uploadFile(coverImage);
-    user.coverImage = coverImageUrl;
+    user.coverImage = coverImageUrl.url;
     await user.save();
     return res.status(200).json(
       new ApiResponse({

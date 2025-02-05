@@ -19,6 +19,7 @@ export const uploadImage = async (file) => {
           resource_type: "auto"
           
         })
+        return uploadResult
        
   } catch (error) {
     throw new ApiError(500, "Image upload failed");
