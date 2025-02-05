@@ -49,6 +49,7 @@ export const getTweets = asyncHandler(async (res, req) => {
     throw ApiError(500, "Error in getting tweets");
   }
 });
+
 export const postTweet = asyncHandler(async (res, req) => {
   try {
     const { content, mentions, hashtags, type, parentTweet } = req.body;
@@ -84,6 +85,7 @@ export const postTweet = asyncHandler(async (res, req) => {
     throw ApiError(500, "Error in posting tweets");
   }
 });
+
 export const updateTweet = asyncHandler(async (res, req) => {
   try {
     const { content, mentions, hashtags, type, parentTweet } = req.body;
@@ -99,27 +101,32 @@ export const updateTweet = asyncHandler(async (res, req) => {
           url: uploadFile.url,
         });
       }
-    const Updatetweet = await TweetModel.findOneAndUpdate(tweetId, {
-      author: user._id,
-      content,
-      media,
-      RetweetsAndRequotes: 0,
-      type,
-      hashtags,
-      mentions,
-      parentTweet,
-    });
-    if (!updateTweet) throw ApiError(404, "Error in updating tweet");
+    const Updatetweet = await TweetModel.findOneAndUpdate(
+      tweetId,
+      {
+        author: user._id,
+        content,
+        media,
+        RetweetsAndRequotes: 0,
+        type,
+        hashtags,
+        mentions,
+        parentTweet,
+      },
+      { new: true }
+    );
+    if (!Updatetweet) throw ApiError(404, "Error in updating tweet");
     return res
       .status(200)
       .json(
-        new ApiResponse(200, updateTweet, "Successfully created updatetweet")
+        new ApiResponse(200, Updatetweet, "Successfully created updatetweet")
       );
   } catch (error) {
     console.log(error);
     throw ApiError(500, "Error in updating tweets");
   }
 });
+
 export const deleteTweet = asyncHandler(async (res, req) => {
   try {
     const { tweetId } = req.params;
@@ -136,6 +143,20 @@ export const deleteTweet = asyncHandler(async (res, req) => {
   } catch (error) {
     console.log(error);
     throw ApiError(500, "Error in deleting tweets");
+  }
+});
+
+export const getyourTweets = asyncHandler(async (res, res) => {
+  try {
+    const user = req.user;
+    const gettweets = await TweetModel.find({ author: user._id });
+    if (!gettweets) throw ApiError(500, "Error in finding tweets");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, gettweets, "Error in finding tweets"));
+  } catch (error) {
+    console.log(error);
+    throw ApiError(500, "Error in getting your tweets", error);
   }
 });
 // import mongoose, { Schema } from "mongoose";
